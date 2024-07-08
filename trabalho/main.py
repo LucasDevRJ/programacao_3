@@ -29,20 +29,33 @@ class ListaDePacientes:
 
     def inserir(self):
         cor = input('Digite a cor do cartão (A/V): ')
-        numero = int(input('Informe o número do cartão: '))
-        paciente = Paciente(cor, numero)
-        if cor == 'V':
-            if numero < 1:
-                print('Os números do cartão V iniciam em 1!')
-                self.inserir()
-            else:
-                self.inserirSemPrioridade(paciente)
-        elif cor == 'A':
+        if cor == 'A':
+            numero = int(input('Informe o número do cartão: '))
             if numero < 201:
-                print('Os números do cartão A iniciam em 201!')
-                self.inserir()
-            else:
-                self.inserirComPrioridade(paciente)
+                print("Número inválido. Deve ser maior ou igual a 1.")
+                return
+        elif cor == 'V':
+            numero = int(input('Informe o número do cartão: '))
+            if numero < 1:
+                print("Número inválido. Deve ser maior ou igual a 201.")
+                return
+        else:
+            print("Cor inválida. Use 'A' para amarelo e 'V' para vermelho.")
+            return
+
+        paciente = Paciente(cor, numero)
+        self.adicionar(paciente)
+
+    def adicionar(self, paciente):
+        if paciente.cor == 'V':
+            # Adiciona pacientes com cartão 'A' antes dos pacientes com cartão 'V'
+            pos = next((i for i, p in enumerate(self.pacientes) if p.cor == 'V'), len(self.pacientes))
+            self.pacientes.insert(pos, paciente)
+        else:
+            # Adiciona pacientes com cartão 'V' ao final da lista
+            self.pacientes.append(paciente)
+
+        print(f'Paciente de cor {paciente.cor} e número {paciente.numero} foi adicionado com sucesso.')
 
     def inserirSemPrioridade(self, paciente):
         self.pacientes.append(paciente)
@@ -71,9 +84,18 @@ class ListaDePacientes:
         if not self.pacientes:
             print("Nenhum paciente na fila.")
         else:
-            print("Lista -> ", end="")
-            for paciente in self.pacientes:
-                print(f'[{paciente.cor}, {paciente.numero}] ', end="")
+            # Separar pacientes com cartão 'A' e 'V'
+            pacientes_a = [p for p in self.pacientes if p.cor == 'A']
+            pacientes_v = [p for p in self.pacientes if p.cor == 'V']
+
+            # Ordenar cada lista de pacientes
+            pacientes_a.sort(key=lambda p: p.numero)
+            pacientes_v.sort(key=lambda p: p.numero)
+
+            print("Lista ->", end=" ")
+            for paciente in pacientes_a + pacientes_v:
+                print(f'[{paciente.cor}, {paciente.numero}]', end=" ")
+            print()  # Para finalizar a linha após a lista de pacientes
 
     print()
     def chamar(self):
